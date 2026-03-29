@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<script>
+(function(){
+    var r=sessionStorage.getItem('terminal_role');
+    var l=sessionStorage.getItem('terminal_logged');
+    if(l!=='true'){window.location.replace('../login.html');return;}
+    if(r!=='admin'){window.location.replace('../index.html');}
+})();
+</script>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ڕاپۆرتی شۆفێر</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+   <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+
+<div class="container">
+
+    <div class="page-header no-print">
+        <h1>📁 ڕاپۆرتی شۆفێر</h1>
+        <p>هەموو گەشتەکانی یەک شۆفێر</p>
+    </div>
+
+    <!-- Search -->
+    <div class="form-card no-print">
+        <h2>🔍 گەڕان بەدووای ناوی شۆفێر</h2>
+        <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+            <div class="form-group" style="flex:1; min-width:200px; position:relative;">
+                <label>ناوی شۆفێر</label>
+                <input type="text" id="driver-search" placeholder="ناوی شۆفێر بنووسە..." oninput="searchDriverSuggest(this.value)" autocomplete="off" />
+                <div class="suggest-box" id="driver-suggest" style="display:none;"></div>
+            </div>
+            <div class="btn-group" style="margin-top:0; padding-bottom:2px;">
+                <button class="btn-gold" onclick="loadDriverReport()">📁 وردبوونەوە</button>
+                <button class="btn-outline" onclick="window.print()">🖨️ چاپکردن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver summary card -->
+    <div id="driver-summary" style="display:none;" class="form-card">
+        <h2 id="driver-title">---</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-top:8px;">
+            <div style="text-align:center;">
+                <div style="font-size:28px; font-weight:800; color:#c9a227;" id="sum-trips">0</div>
+                <div style="font-size:12px; color:#64748b; margin-top:4px;">کۆی ڕۆیشتنەکان</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:28px; font-weight:800; color:#60a5fa;" id="sum-passengers">0</div>
+                <div style="font-size:12px; color:#64748b; margin-top:4px;">کۆی گەشتیاران</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:22px; font-weight:800; color:#4ade80;" id="sum-income">0 IQD</div>
+                <div style="font-size:12px; color:#64748b; margin-top:4px;">کۆی دراوەکان</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trips table -->
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>جۆر</th>
+                    <th>ڕێگە</th>
+                    <th>گەشتیاران</th>
+                    <th>دراوەکان</th>
+                    <th>بەروار</th>
+                    <th>دۆخ</th>
+                </tr>
+            </thead>
+            <tbody id="driver-trips-body">
+                <tr><td colspan="7" class="table-empty">ناوی شۆفێر بنووسە و کلیک لەسەر وردبوونەوە بکە </td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/driver-report.js"></script>
+</body>
+</html>

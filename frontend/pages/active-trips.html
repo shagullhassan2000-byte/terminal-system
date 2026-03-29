@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title> گەشتە چالاکەکان</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+<div class="container">
+  <div class="page-header">
+    <h1>📍گەشتە چالاکەکان</h1>
+    <p id="today-date">---</p>
+  </div>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>کۆدی ڕۆیشتن</th>
+          <th>جۆر</th>
+          <th>شۆفێر</th>
+          <th>ئۆتۆمبێل</th>
+          <th>ڕێگە</th>
+          <th>گەشتیاران</th>
+          <th>دراوەکان</th>
+          <th>کات</th>
+          <th>کردارەکان</th>
+        </tr>
+      </thead>
+      <tbody id="trips-body">
+        <tr><td colspan="10" class="table-empty">⏳ داتا بارئەکرێت...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="../js/auth.js"></script>
+<script src="../js/receipt.js"></script>
+<script src="../js/active-trips.js"></script>
+</body>
+</html>

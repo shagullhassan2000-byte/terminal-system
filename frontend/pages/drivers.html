@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بەڕێوەبردنی شۆفێرەکان</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:2000; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal { background:linear-gradient(135deg,#0d1f3c,#0f2444); border:1.5px solid #c9a227; border-radius:16px; padding:32px; width:100%; max-width:480px; margin:20px; }
+        .modal h2 { color:#c9a227; font-size:18px; margin-bottom:20px; }
+        .avail-available { background:rgba(74,222,128,0.12); color:#4ade80; border:1px solid rgba(74,222,128,0.25); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .avail-on_trip   { background:rgba(239,68,68,0.12);  color:#f87171; border:1px solid rgba(239,68,68,0.25);  padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .avail-off_duty  { background:rgba(100,116,139,0.12); color:#94a3b8; border:1px solid rgba(100,116,139,0.25); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+   <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+
+<div class="container">
+    <div class="page-header"><h1>👤 کۆنترۆڵکردنی  شۆفێرەکان</h1></div>
+
+    <!-- Add driver -->
+    <div class="form-card admin-only">
+        <h2>➕ زیادکردنی شۆفێری نوێ</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>ناوی شۆفێر</label>
+                <input type="text" id="new-name" placeholder="ناوی تەواو" />
+            </div>
+            <div class="form-group">
+                <label>ژمارەی مۆبایل</label>
+                <input type="text" id="new-phone" placeholder="07XX XXX XXXX" />
+            </div>
+            <div class="form-group">
+                <label>ژمارەی ئۆتۆمبێل</label>
+                <input type="text" id="new-car" placeholder="پلاکی ئۆتۆمبێل" />
+            </div>
+            <div class="form-group">
+                <label>جۆری ئۆتۆمبێل</label>
+                <select id="new-type">
+                    <option value="">جۆر دیاری بکە...</option>
+                    <option value="Taxi">🟡 تاکسی</option>
+                    <option value="Short Distance">🔵ئۆتۆمبێلی ناوەخۆ</option>
+                    <option value="Bus">🟢پاس</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-success" onclick="addDriver()">➕ زیادکردن</button>
+            <button class="btn btn-secondary" onclick="clearForm()">🔄 پاككردنەوە</button>
+        </div>
+    </div>
+
+    <!-- Search + filter -->
+    <div class="form-card" style="padding:14px 20px;">
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <input type="text" id="search-drivers" placeholder="🔍 گەڕان بە ناو یان مۆبایل..." oninput="filterDrivers()" style="flex:1; min-width:180px;" />
+            <select id="filter-avail" onchange="filterDrivers()" style="width:160px;">
+                <option value="">هەموو بارەدۆخەکان</option>
+                <option value="available">🟢 بەردەست</option>
+                <option value="on_trip">🔴 لە ڕێگایدایە</option>
+                <option value="off_duty">⚫ دەرەوەی کار</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Drivers table -->
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ناوی شۆفێر</th>
+                    <th>مۆبایل</th>
+                    <th>ئۆتۆمبێل</th>
+                    <th>جۆر</th>
+                    <th>دۆخ</th>
+                    <th>کردارەکان</th>
+                </tr>
+            </thead>
+            <tbody id="drivers-body">
+                <tr><td colspan="7" class="table-empty">⏳ داتا بارئەکرێت...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+        <h2>✏️ دەستکاریکردنی شۆفێر</h2>
+        <input type="hidden" id="edit-id" />
+        <div class="form-grid" style="grid-template-columns:1fr;">
+            <div class="form-group"><label>ناوی شۆفێر</label><input type="text" id="edit-name" /></div>
+            <div class="form-group"><label>ژمارەی مۆبایل</label><input type="text" id="edit-phone" /></div>
+            <div class="form-group"><label>ژمارەی ئۆتۆمبێل</label><input type="text" id="edit-car" /></div>
+            <div class="form-group"><label>جۆری ئۆتۆمبێل</label>
+                <select id="edit-type">
+                    <option value="Taxi">🟡 تاکسی</option>
+                    <option value="Short Distance">🔵ئۆتۆمبێلی ناوەخۆ</option>
+                    <option value="Bus">🟢پاس</option>
+                </select>
+            </div>
+            <div class="form-group"><label>دۆخی بەردەستی</label>
+                <select id="edit-avail">
+                    <option value="available">🟢 بەردەست</option>
+                    <option value="on_trip">🔴 لە ڕێگایدایە</option>
+                    <option value="off_duty">⚫ دەرەوەی کار</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-success" onclick="saveEdit()">💾 پاشەکەوتکردن</button>
+            <button class="btn btn-secondary" onclick="closeModal()">❌ داخستن</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/drivers.js"></script>
+</body>
+</html>

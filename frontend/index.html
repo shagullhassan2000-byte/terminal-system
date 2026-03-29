@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<script>
+(function(){
+    var r=sessionStorage.getItem('terminal_role');
+    var l=sessionStorage.getItem('terminal_logged');
+    if(l!=='true'){window.location.replace('login.html');return;}
+    if(r!=='admin'){window.location.replace('dashboard.html');}
+})();
+</script>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚖</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کۆنترۆڵکردنی  بەکارهێنەران</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:2000; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal { background:linear-gradient(135deg,#0d1f3c,#0f2444); border:1.5px solid #c9a227; border-radius:16px; padding:32px; width:100%; max-width:460px; margin:20px; }
+        .modal h2 { color:#c9a227; font-size:18px; margin-bottom:20px; }
+        .role-admin { background:rgba(201,162,39,0.12); color:#c9a227; border:1px solid rgba(201,162,39,0.3); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .role-staff { background:rgba(59,130,246,0.12); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+        .status-on  { color:#4ade80; font-weight:700; }
+        .status-off { color:#ef4444; font-weight:700; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+ <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1>👥 کۆنترۆڵکردنی  بەکارهێنەران</h1>
+        <p>تەنها ئەدمین دەتوانێت ئەم پەڕەیە ببینێت</p>
+    </div>
+
+    <!-- Add user form -->
+    <div class="form-card">
+        <h2>➕ زیادکردنی بەکارهێنەری نوێ</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>ناوی بەکارهێنەر</label>
+                <input type="text" id="new-username" placeholder="بەکارهێنەر" autocomplete="off" />
+            </div>
+            <div class="form-group">
+                <label>وشەی نهێنی</label>
+                <input type="password" id="new-password" placeholder="کەمی ٤ پیت" autocomplete="new-password" />
+            </div>
+            <div class="form-group">
+                <label>ناوی تەواو</label>
+                <input type="text" id="new-fullname" placeholder="ناوی تەواو" />
+            </div>
+            <div class="form-group">
+                <label>ئەرک</label>
+                <select id="new-role">
+                    <option value="staff">👤 ستاف</option>
+                    <option value="admin">👑 ئەدمین</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-success" onclick="addUser()">➕ زیادکردن</button>
+        </div>
+    </div>
+
+    <!-- Permissions info -->
+    <div class="form-card" style="padding:16px 20px;">
+        <h2>🔐 ئەرکەکان و دەسەڵاتەکان</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px;">
+            <div style="background:#060f1e; border:1px solid #1e3a5f; border-radius:10px; padding:16px;">
+                <div style="font-size:16px; font-weight:700; color:#c9a227; margin-bottom:12px;">👑 ئەدمین</div>
+                <div style="font-size:13px; color:#94a3b8; line-height:2;">
+                    ✅ دروستکردنی گەشت<br>
+                    ✅ تەواوکردنی گەشت<br>
+                    ✅ سڕینەوەی گەشت<br>
+                    ✅ بەڕێوەبردنی شۆفێران<br>
+                    ✅ بینینی ڕاپۆرتەکان<br>
+                    ✅ Excel و باکئەپ<br>
+                    ✅ بەڕێوەبردنی بەکارهێنەران<br>
+                    ✅ بینینی لۆگی کردارەکان
+                </div>
+            </div>
+            <div style="background:#060f1e; border:1px solid #1e3a5f; border-radius:10px; padding:16px;">
+                <div style="font-size:16px; font-weight:700; color:#60a5fa; margin-bottom:12px;">👤 ستاف</div>
+                <div style="font-size:13px; color:#94a3b8; line-height:2;">
+                    ✅ دروستکردنی گەشت<br>
+                    ✅ تەواوکردنی گەشت<br>
+                    ✅ زیادکردنی گەشتیاران<br>
+                    ✅ بینینی شۆفێران<br>
+                    ✅ بینینی مێژوو<br>
+                    ❌ سڕینەوەی گەشت<br>
+                    ❌ بەڕێوەبردنی بەکارهێنەران<br>
+                    ❌ باکئەپ و Excel
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users table -->
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ناوی بەکارهێنەر</th>
+                    <th>ناوی تەواو</th>
+                    <th>ئەرک</th>
+                    <th>دۆخ</th>
+                    <th>کاتی دواین چوونەژوورەوە</th>
+                    <th>کردارەکان</th>
+                </tr>
+            </thead>
+            <tbody id="users-body">
+                <tr><td colspan="7" class="table-empty">⏳ داتا بارئەکرێت...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Change password modal -->
+<div class="modal-overlay" id="pwd-modal">
+    <div class="modal">
+        <h2>🔑 گۆڕینی وشەی نهێنی</h2>
+        <input type="hidden" id="pwd-user-id" />
+        <div class="form-group" style="margin-bottom:18px;">
+            <label>وشەی نهێنی نوێ</label>
+            <input type="password" id="new-pwd" placeholder="کەمتر نەبێ لە ٤ پیت" autocomplete="new-password" />
+        </div>
+        <div class="btn-group">
+            <button class="btn-success" onclick="savePassword()">💾باکئەپکردن</button>
+            <button class="btn-outline" onclick="closeModal()">❌داخستن </button>
+        </div>
+    </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/users.js"></script>
+</body>
+</html>

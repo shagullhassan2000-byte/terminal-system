@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سکانی پاسپۆرت</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.scan-box {
+    background: linear-gradient(135deg, #0d1f3c, #0f2444);
+    border: 2px dashed #c9a227;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 24px;
+    position: relative;
+}
+.scan-box:hover, .scan-box.active { border-color: #4ade80; background: linear-gradient(135deg, #0d2f1c, #0f3424); }
+.scan-icon { font-size: 64px; margin-bottom: 16px; }
+.scan-status { font-size: 16px; color: #94a3b8; margin-bottom: 8px; }
+.scan-input { position: absolute; opacity: 0; width: 1px; height: 1px; top: 0; left: 0; }
+.passport-card {
+    background: linear-gradient(135deg, #1e3a5f, #0f2444);
+    border: 1.5px solid #c9a227;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: none;
+}
+.passport-card.show { display: block; }
+.passport-field { display: grid; grid-template-columns: 140px 1fr; gap: 8px; align-items: center; margin-bottom: 12px; }
+.passport-label { font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+.passport-value { font-size: 15px; color: #e2e8f0; font-weight: 600; }
+.passport-value input { width: 100%; background: #060f1e; border: 1px solid #1e3a5f; border-radius: 8px; padding: 8px 12px; color: #e2e8f0; font-size: 14px; font-family: inherit; }
+.passport-value input:focus { outline: none; border-color: #c9a227; }
+.mrz-display { background: #060f1e; border: 1px solid #1e3a5f; border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; color: #4ade80; word-break: break-all; margin-bottom: 16px; }
+.tip-box { background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.2); border-radius: 10px; padding: 16px; font-size: 13px; color: #94a3b8; line-height: 1.8; }
+</style>
+</head>
+<body>
+<nav class="navbar">
+ <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+
+
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+<div class="container">
+  <div class="page-header">
+    <h1>📷 سکانی پاسپۆرت</h1>
+    <p>پاسپۆرت بخشێنە  بە سکانەر یان بە دەستی پڕبکەوە</p>
+  </div>
+  <div class="scan-box" id="scan-box" onclick="focusScanner()">
+    <div class="scan-icon" id="scan-icon">📷</div>
+    <div class="scan-status" id="scan-status">کلیک بکە، پاسپۆرت بخشێنە  بە سکانەر </div>
+    <div style="font-size:13px;color:#475569;margin-top:8px;">یان دەستی پڕبکەوە لە خوارەوە</div>
+    <input type="text" id="scanner-input" class="scan-input" oninput="handleScan(this.value)" placeholder="scanner input" autocomplete="off" />
+  </div>
+  <div class="passport-card" id="passport-card">
+    <h2 style="color:#c9a227;margin-bottom:20px;">🪪 زانیاری پاسپۆرت</h2>
+    <div class="mrz-display" id="mrz-raw" style="display:none;"></div>
+    <div class="passport-field"><span class="passport-label">ناوی تەواو</span><div class="passport-value"><input type="text" id="p-name" placeholder="ناوی تەواو" /></div></div>
+    <div class="passport-field"><span class="passport-label">ژمارەی پاسپۆرت</span><div class="passport-value"><input type="text" id="p-passport" placeholder="A12345678" /></div></div>
+    <div class="passport-field"><span class="passport-label">وڵاتنامە</span><div class="passport-value"><input type="text" id="p-nationality" placeholder="Iraq / IRQ" /></div></div>
+    <div class="passport-field"><span class="passport-label">بەرواری لەدایکبوون</span><div class="passport-value"><input type="text" id="p-dob" placeholder="1990-01-01" /></div></div>
+    <div class="passport-field"><span class="passport-label">بەرواری کۆتایی</span><div class="passport-value"><input type="text" id="p-expiry" placeholder="2030-01-01" /></div></div>
+    <div class="passport-field"><span class="passport-label">ڕەگەز</span><div class="passport-value"><input type="text" id="p-gender" placeholder="M / F" /></div></div>
+    <div class="btn-group" style="margin-top:20px;">
+      <button class="btn btn-success" onclick="savePassenger()">💾 پاشەکەوت بکە وەک گەشتیار</button>
+      <button class="btn btn-secondary" onclick="clearForm()">🔄 پاككردنەوە</button>
+      <button class="btn btn-warning" onclick="printPassport()">🖨️ پرینت</button>
+    </div>
+  </div>
+  <div class="form-card">
+    <h2>✏️ دەستی داخلکردن (بەبێ سکانەر)</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>ناوی تەواو</label><input type="text" id="m-name" placeholder="ناوی گەشتیار" /></div>
+      <div class="form-group"><label>ژمارەی پاسپۆرت</label><input type="text" id="m-passport" placeholder="A12345678" /></div>
+      <div class="form-group"><label>وڵاتنامە</label><input type="text" id="m-nationality" placeholder="Iraq" /></div>
+      <div class="form-group"><label>بەرواری لەدایکبوون</label><input type="text" id="m-dob" placeholder="1990-01-01" /></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="fillFromManual()">✅ بخەرە ناو فۆرمەکە</button></div>
+  </div>
+  <div class="table-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="margin:0;">👥 گەشتیارانی تۆمارکراو ئەمڕۆ</h2>
+      <button class="btn btn-secondary" onclick="loadScanned()">🔄</button>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>ناو</th><th>پاسپۆرت</th><th>وڵات</th><th>بەروار</th><th>کاتژمێر</th></tr></thead>
+      <tbody id="scanned-body"><tr><td colspan="6" class="table-empty">هیچ گەشتیارێک تۆمار نەکراوە</td></tr></tbody>
+    </table>
+  </div>
+  <div class="tip-box">
+    <strong style="color:#c9a227;">📋 چۆن بەکاری بێنی:</strong><br>
+    ١. سکانەری پاسپۆرت بخەرە USB | ٢. کلیک بکە لەسەر کاتە زەردەکە | ٣. پاسپۆرت بخشێنە — داتا خۆکار پڕدەبێتەوە<br>
+    ٤. بەبێ سکانەر — بەدەستی پڕبکەوە لە بەشی خوارەوە | ٥. ئینتەرنێت پێویست نیە
+  </div>
+</div>
+<script src="../js/auth.js"></script>
+<script src="../js/passport-scan.js"></script>
+</body>
+</html>

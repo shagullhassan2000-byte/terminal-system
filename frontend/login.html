@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چوونەژوورەوە — تێرمیناڵ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="login-logo">🏛️</div>
+        <h1>دەروازەی نێودەوڵەتی حاجی ئۆمەران</h1>
+        <p>سیستەمی بەڕێوەبردنی تێرمیناڵ</p>
+
+        <div class="login-form">
+            <div class="form-group">
+                <label for="username">ناوی بەکارهێنەر</label>
+                <input type="text" id="username" placeholder="ناوی بەکارهێنەر" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">وشەی تێپەڕبوو</label>
+                <input type="password" id="password" placeholder="••••••••" 
+                       autocomplete="current-password"
+                       onkeydown="if (event.key === 'Enter') login()">
+            </div>
+  <div id="error-msg" class="login-error" style="display:none;"></div>
+
+<button class="btn-gold" id="login-btn" onclick="login()">
+    🚀 چوونەژوورەوە
+</button>
+</div>
+
+<div class="login-footer">
+
+    <h3 class="footer-system-name">
+        © 2026 — تێرمیناڵی نێودەوڵەتی حاجی ئۆمەران
+    </h3>
+
+    <h6 class="dev-credit">
+        Developed by <span>Eng. Shagull</span>
+    </h6>
+
+</div>
+
+</div>
+</div>              
+      
+  <script>
+    // Configuration: Change this to your actual Backend URL
+    const API = '/api';
+
+    // 1. Auto redirect if already logged in
+    if (sessionStorage.getItem('terminal_logged') === 'true') {
+        window.location.href = 'dashboard.html';
+    }
+
+    // 2. Main Login Function
+    async function login() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const errorEl  = document.getElementById('error-msg');
+        const btn      = document.getElementById('login-btn');
+
+        // Check for empty fields
+        if (!username || !password) {
+            showError('ببورە! تکایە ناوی بەکارهێنەر و وشەی تێپەڕبوو بنووسە');
+            return;
+        }
+
+        // UI Feedback: Loading state
+        btn.disabled = true;
+        btn.innerHTML = '⏳ چاوەڕوانبە...';
+        errorEl.style.display = 'none';
+
+        try {
+            const res = await fetch(`${API}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                // Save session data
+                sessionStorage.setItem('terminal_logged', 'true');
+                sessionStorage.setItem('terminal_user', data.data.username);
+                sessionStorage.setItem('terminal_role', data.data.role);
+                sessionStorage.setItem('terminal_name', data.data.fullName || data.data.username);
+
+                // Success Redirect
+                window.location.href = 'dashboard.html';
+            } else {
+                showError(data.error || 'ببورە! ناوی بەکارهێنەر یان وشەی تێپەڕبوو هەڵەیە');
+                resetBtn(btn);
+            }
+        } catch (err) {
+            showError('❌ پەیوەندی بە سێرڤەرەوە نەکرا');
+            resetBtn(btn);
+        }
+    }
+
+    // Reset Button State
+    function resetBtn(btn) {
+        btn.disabled = false;
+        btn.innerHTML = ' چوونەژوورەوە';
+    }
+
+    // Show Error Message
+    function showError(msg) {
+        const el = document.getElementById('error-msg');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

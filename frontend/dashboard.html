@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<script>
+(function(){
+    if(sessionStorage.getItem('terminal_logged')!=='true'){
+        window.location.replace('login.html');
+    }
+})();
+</script>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚖</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دەشبۆرد — تێرمینال</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:24px; }
+        .stat-card { background:linear-gradient(135deg,#0d1f3c,#0f2444); border:1px solid rgba(201,162,39,0.2); border-radius:12px; padding:20px; }
+        .stat-card h3 { color:#94a3b8; font-size:13px; margin-bottom:12px; font-weight:600; }
+        .stat-row { display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; }
+        .stat-label { color:#64748b; }
+        .stat-val { color:#e2e8f0; font-weight:700; }
+        .stat-val.gold { color:#c9a227; font-size:16px; }
+        .stat-val.green { color:#4ade80; }
+        .stat-val.blue { color:#60a5fa; }
+        .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+        @media(max-width:700px){ .chart-grid{grid-template-columns:1fr;} }
+        .chart-card { background:linear-gradient(135deg,#0d1f3c,#0f2444); border:1px solid rgba(201,162,39,0.2); border-radius:12px; padding:20px; }
+        .chart-card h3 { color:#94a3b8; font-size:13px; margin-bottom:14px; }
+        .chart-wrap { position:relative; height:200px; }
+        .driver-row { display:flex; gap:12px; margin-bottom:20px; }
+        .drv-badge { background:#0d1f3c; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 20px; flex:1; text-align:center; }
+        .drv-num { font-size:28px; font-weight:800; }
+        .drv-lbl { font-size:11px; color:#64748b; margin-top:4px; }
+        .page-title { font-size:20px; font-weight:700; color:#c9a227; margin-bottom:20px; }
+        .today-label { color:#94a3b8; font-size:13px; margin-bottom:4px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="pages/new-trip.html">➕ گەشتی نوێ</a>
+    <a href="pages/active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="pages/history.html">📋 مێژوو</a>
+    <a href="pages/drivers.html">🚗 شۆفێرەکان</a>
+    <a href="pages/passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="pages/passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="pages/reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="pages/driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="pages/users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="pages/backup.html" data-admin>💾 باکئەپ</a>
+    <a href="pages/activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+
+<div class="container">
+    <p class="today-label" id="today-date"></p>
+    <div class="page-title">📊 ئامارەکانی ئەمڕۆ</div>
+
+    <!-- Stats grid -->
+    <div class="stat-grid">
+        <!-- City Taxi -->
+        <div class="stat-card">
+            <h3>🟡 تاکسی </h3>
+            <div class="stat-row"><span class="stat-label">گەشت</span><span class="stat-val" id="ct-trips">—</span></div>
+            <div class="stat-row"><span class="stat-label">گەشتیار</span><span class="stat-val blue" id="ct-passengers">—</span></div>
+            <div class="stat-row"><span class="stat-label">چالاک</span><span class="stat-val green" id="ct-active">—</span></div>
+            <div class="stat-row"><span class="stat-label">دراو</span><span class="stat-val gold" id="ct-income">—</span></div>
+        </div>
+        <!-- Short Distance -->
+        <div class="stat-card">
+            <h3>🔵 ئۆتۆمبێلی ناوەخۆ</h3>
+            <div class="stat-row"><span class="stat-label">گەشت</span><span class="stat-val" id="ld-trips">—</span></div>
+            <div class="stat-row"><span class="stat-label">گەشتیار</span><span class="stat-val blue" id="ld-passengers">—</span></div>
+            <div class="stat-row"><span class="stat-label">چالاک</span><span class="stat-val green" id="ld-active">—</span></div>
+            <div class="stat-row"><span class="stat-label">دراو</span><span class="stat-val gold" id="ld-income">—</span></div>
+        </div>
+        <!-- Bus -->
+        <div class="stat-card">
+            <h3>🟢 پاس</h3>
+            <div class="stat-row"><span class="stat-label">گەشت</span><span class="stat-val" id="bs-trips">—</span></div>
+            <div class="stat-row"><span class="stat-label">گەشتیار</span><span class="stat-val blue" id="bs-passengers">—</span></div>
+            <div class="stat-row"><span class="stat-label">چالاک</span><span class="stat-val green" id="bs-active">—</span></div>
+            <div class="stat-row"><span class="stat-label">دراو</span><span class="stat-val gold" id="bs-income">—</span></div>
+        </div>
+        <!-- Total -->
+        <div class="stat-card" style="border-color:rgba(201,162,39,0.5);">
+            <h3>⭐ کۆی گشتی</h3>
+            <div class="stat-row"><span class="stat-label">گەشتە</span><span class="stat-val gold" id="tot-trips">—</span></div>
+            <div class="stat-row"><span class="stat-label">گەشتیار</span><span class="stat-val gold" id="tot-passengers">—</span></div>
+            <div class="stat-row"><span class="stat-label">چالاک</span><span class="stat-val green" id="tot-active">—</span></div>
+            <div class="stat-row"><span class="stat-label">دراو</span><span class="stat-val gold" style="font-size:18px;" id="tot-income">—</span></div>
+        </div>
+    </div>
+
+    <!-- Driver summary -->
+    <div class="driver-row">
+        <div class="drv-badge">
+            <div class="drv-num" style="color:#4ade80;" id="drv-available">—</div>
+            <div class="drv-lbl">🟢 بەردەست</div>
+        </div>
+        <div class="drv-badge">
+            <div class="drv-num" style="color:#ef4444;" id="drv-on-trip">—</div>
+            <div class="drv-lbl">🔴 لە ڕێگایدایە</div>
+        </div>
+        <div class="drv-badge">
+            <div class="drv-num" style="color:#64748b;" id="drv-off-duty">—</div>
+            <div class="drv-lbl">⚫ دەرەوەی کار</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h3>📈 ڕۆیشتن و گەشتیار — ٧ ڕۆژی ڕابردوو</h3>
+            <div class="chart-wrap"><canvas id="trips-chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>💰 دراوەکان — ٧ ڕۆژی ڕابردوو</h3>
+            <div class="chart-wrap"><canvas id="income-chart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="stat-grid">
+        <a href="pages/new-trip.html" style="text-decoration:none;">
+            <div class="stat-card" style="text-align:center;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='#c9a227'" onmouseout="this.style.borderColor='rgba(201,162,39,0.2)'">
+                <div style="font-size:32px;margin-bottom:8px;">🚗</div>
+                <div style="color:#e2e8f0;font-weight:700;">گەشتی نوێ</div>
+            </div>
+        </a>
+        <a href="pages/active-trips.html" style="text-decoration:none;">
+            <div class="stat-card" style="text-align:center;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='#4ade80'" onmouseout="this.style.borderColor='rgba(201,162,39,0.2)'">
+                <div style="font-size:32px;margin-bottom:8px;">📍</div>
+                <div style="color:#e2e8f0;font-weight:700;">گەشتە چالاکەکان</div>
+            </div>
+        </a>
+        <a href="pages/passport-scan.html" style="text-decoration:none;">
+            <div class="stat-card" style="text-align:center;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='#60a5fa'" onmouseout="this.style.borderColor='rgba(201,162,39,0.2)'">
+                <div style="font-size:32px;margin-bottom:8px;">📷</div>
+                <div style="color:#e2e8f0;font-weight:700;">سکانی پاسپۆرت</div>
+            </div>
+        </a>
+        <a href="pages/history.html" style="text-decoration:none;">
+            <div class="stat-card" style="text-align:center;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='rgba(201,162,39,0.2)'">
+                <div style="font-size:32px;margin-bottom:8px;">📋</div>
+                <div style="color:#e2e8f0;font-weight:700;">مێژووی گەشت</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<script src="js/chart.min.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

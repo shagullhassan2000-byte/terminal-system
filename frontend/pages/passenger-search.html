@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<script>
+(function(){
+    var r=sessionStorage.getItem('terminal_role');
+    var l=sessionStorage.getItem('terminal_logged');
+    if(l!=='true'){window.location.replace('../login.html');return;}
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚖</text></svg>">
+<title>گەڕانی گەشتیاران</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1>🔎 گەڕانی بەدووای گەشتیاران</h1>
+        <p>گەڕان بەدووای  گەشتیاری تۆمارکراو</p>
+    </div>
+
+    <div class="form-card" style="padding:16px 20px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+            <input type="text" id="search-input"
+                placeholder="🔍 ناو، پاسپۆرت، یان وڵات بنووسە..."
+                oninput="searchPassengers(this.value)"
+                style="flex:1; font-size:15px; padding:12px 16px;"
+                autocomplete="off" />
+            <button class="btn-outline" onclick="clearSearch()">✖ پاككردنەوە</button>
+        </div>
+        <div id="result-count" style="margin-top:8px; font-size:13px; color:#94a3b8;"></div>
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>کۆدی گەشت</th>
+                    <th>ناوی گەشتیار</th>
+                    <th>پاسپۆرت</th>
+                    <th>وڵات</th>
+                    <th>جۆر</th>
+                    <th>شۆفێر</th>
+                    <th>ڕێگە</th>
+                    <th>بەروار</th>
+                </tr>
+            </thead>
+            <tbody id="results-body">
+                <tr><td colspan="8" class="table-empty">ناو یان پاسپۆرت بنووسە بۆ گەڕان</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/passenger-search.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<script>
+(function(){
+    var r=sessionStorage.getItem('terminal_role');
+    var l=sessionStorage.getItem('terminal_logged');
+    if(l!=='true'){window.location.replace('../login.html');return;}
+    if(r!=='admin'){window.location.replace('../index.html');}
+})();
+</script>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لۆگی کردارەکان</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ ڕۆیشتنی نوێ</a>
+    <a href="active-trips.html">📍 چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎 گەڕانی گەشتیار</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁 ڕاپۆرتی شۆفێر</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" class="active" data-admin>📜 لۆگ</a>
+  </div>
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1>📜 لۆگی کردارەکان</h1>
+        <p>هەموو کردارەکانی سیستەم تۆمارکراوە</p>
+    </div>
+
+    <!-- Filter -->
+    <div class="form-card" style="padding:16px 20px;">
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <input type="text" id="filter-user" placeholder="🔍 فلتەر بە ناوی بەکارهێنەر..." oninput="filterLog()" style="flex:1; min-width:180px;" />
+            <select id="filter-action" onchange="filterLog()" style="width:200px;">
+                <option value="">هەموو کردارەکان</option>
+                <optgroup label="─── چوونەژوورەوە ───">
+                    <option value="LOGIN">✅ چوونەژوورەوە</option>
+                    <option value="LOGIN_FAILED">❌ چوونەژوورەوەی هەڵە</option>
+                </optgroup>
+                <optgroup label="─── ڕۆیشتنەکان ───">
+                    <option value="TRIP_CREATED">🚗 دروستکردنی ڕۆیشتن</option>
+                    <option value="TRIP_COMPLETED">✅ تەواوکردنی ڕۆیشتن</option>
+                    <option value="TRIP_CANCELLED">❌ هەڵوەشاندنی ڕۆیشتن</option>
+                    <option value="TRIP_DELETED">🗑️ سڕینەوەی ڕۆیشتن</option>
+                    <option value="TRIP_UPDATED">✏️ نوێکردنەوەی ڕۆیشتن</option>
+                </optgroup>
+                <optgroup label="─── شۆفێرەکان ───">
+                    <option value="DRIVER_ADDED">➕ زیادکردنی شۆفێر</option>
+                    <option value="DRIVER_UPDATED">✏️ نوێکردنەوەی شۆفێر</option>
+                    <option value="DRIVER_DELETED">🗑️ سڕینەوەی شۆفێر</option>
+                </optgroup>
+                <optgroup label="─── سیستەم ───">
+                    <option value="AUTO_BACKUP">💾 باکئەپی ئۆتۆماتیک</option>
+                </optgroup>
+            </select>
+            <button class="btn-outline" onclick="clearFilter()">✖ پاككردنەوە</button>
+            <button class="btn-gold" onclick="loadLog()">🔄 نوێکردنەوە</button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>بەکارهێنەر</th>
+                    <th>کردار</th>
+                    <th>وردەکاری</th>
+                    <th>کات</th>
+                </tr>
+            </thead>
+            <tbody id="log-body">
+                <tr><td colspan="5" class="table-empty">⏳ داتا بارئەکرێت...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/activity-log.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<script>
+(function(){
+    var r=sessionStorage.getItem('terminal_role');
+    var l=sessionStorage.getItem('terminal_logged');
+    if(l!=='true'){window.location.replace('../login.html');return;}
+    if(r!=='admin'){window.location.replace('../index.html');}
+})();
+</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ڕاپۆرتەکان</title>
+<link rel="stylesheet" href="../css/style.css?v=2">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+
+
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+<div class="container">
+  <div class="page-header"><h1>📊 ڕاپۆرتی ڕۆژانە</h1></div>
+
+  <div class="form-card">
+    <div id="report-date-title" style="font-size:16px;font-weight:700;color:#c9a227;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:160px;">
+        <label>بەروار</label>
+        <input type="date" id="report-date" />
+      </div>
+      <div class="btn-group" style="margin:0;padding-bottom:2px;flex-wrap:wrap;">
+        <button class="btn-gold"   onclick="loadReport()">📊 وردبوونەوە</button>
+        <button class="btn-outline" onclick="setTodayDate()">📅 ئەمڕۆ</button>
+        <button class="btn-success"   onclick="exportTripsCSV()">📥 CSV ڕۆیشتنەکان</button>
+        <button class="btn-info"      onclick="exportPassengersCSV()">👥 CSV گەشتیاران</button>
+        <button class="btn-outline" data-admin onclick="downloadBackup()">💾 باکئەپ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr><th>جۆری خزمەتگوزاری</th><th>ژمارەی ڕۆیشتن</th><th>گەشتیاران</th><th>دراوەکان</th></tr>
+      </thead>
+      <tbody id="report-body">
+        <tr><td colspan="4" class="table-empty">⏳ داتا بارئەکرێت...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="../js/auth.js?v=2"></script>
+<script src="../js/reports.js?v=2"></script>
+</body>
+</html>

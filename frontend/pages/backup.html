@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<script>
+(function(){
+    var r=sessionStorage.getItem('terminal_role');
+    var l=sessionStorage.getItem('terminal_logged');
+    if(l!=='true'){window.location.replace('../login.html');return;}
+    if(r!=='admin'){window.location.replace('../index.html');}
+})();
+</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>بەڕێوەبردنی باکئەپ</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<nav class="navbar">
+   <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+<div class="container">
+  <div class="page-header">
+    <h1>💾 بەڕێوەبردنی باکئەپ</h1>
+    <p>پاراستنی داتا و گەڕاندنەوەی دیتابەیس — تەنها ئەدمین</p>
+  </div>
+
+  <!-- Create manual backup -->
+  <div class="form-card">
+    <h2>➕ دروستکردنی باکئەپی دەستی</h2>
+    <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">ئێستا باکئەپ دروست بکە و سەیڤ بکە لە سەرڤەر.</p>
+    <button class="btn-success" onclick="createBackup()">💾 باکئەپ دروست بکە</button>
+    <div id="create-result" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- Backup list + restore -->
+  <div class="table-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="margin:0;">📋 باکئەپەکان</h2>
+      <button class="btn-outline" onclick="loadBackups()">🔄 نوێکردنەوە</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>ناوی فایل</th><th>بەروار</th><th>قەبارە</th><th>کردارەکان</th></tr>
+      </thead>
+      <tbody id="backup-body">
+        <tr><td colspan="4" class="table-empty">⏳ داتابارئەکرێت...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/backup.js"></script>
+</body>
+</html>

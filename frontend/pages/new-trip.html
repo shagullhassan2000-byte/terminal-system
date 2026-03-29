@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ڕۆیشتنی نوێ</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">🚖 تێرمینال</div>
+  <div class="nav-links">
+    <a href="../dashboard.html">🏠 دەشبۆرد</a>
+    <a href="new-trip.html">➕ گەشتی نوێ</a>
+    <a href="active-trips.html" class="active">📍 گەشتە چالاکەکان</a>
+    <a href="history.html">📋 مێژوو</a>
+    <a href="drivers.html">🚗 شۆفێرەکان</a>
+    <a href="passenger-search.html">🔎گەڕان بەدووای گەشتیاران</a>
+    <a href="passport-scan.html">🪪 سکانی پاسپۆرت</a>
+    <a href="reports.html" data-admin>📊 ڕاپۆرت</a>
+    <a href="driver-report.html" data-admin>📁ڕاپۆرتی شۆفێران</a>
+    <a href="users.html" data-admin>👥 بەکارهێنەران</a>
+    <a href="backup.html" data-admin>💾 باکئەپ</a>
+    <a href="activity-log.html" data-admin>📜داخیڵ بوون</a>
+  </div>
+
+  <div class="nav-right">
+    <span id="nav-user"></span>
+    <div class="nav-time" id="clock">--:--:--</div>
+    <button onclick="logout()" class="btn-logout">↩ دەرچوون</button>
+  </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1>🚗 ڕۆیشتنی نوێ</h1>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="form-card">
+        <h2>هەنگاوی ١ — جۆری خزمەتگوزاری دیاری بکە</h2>
+        <div class="btn-group" style="gap:16px;">
+            <button class="type-btn city-taxi" onclick="setType(this,'City Taxi')">🟡 تاکسی </button>
+            <button class="type-btn long-dist" onclick="setType(this,'Short Distance')">🔵ئۆتۆمبێلی ناوەخۆ</button>
+            <button class="type-btn bus" onclick="setType(this,'Bus')">🟢 پاس</button>
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="form-card" id="trip-form" style="display:none;">
+        <h2 id="form-title">زانیاری گەشت</h2>
+        <div id="capacity-info" style="font-size:13px;color:#c9a227;margin-bottom:12px;font-weight:700;"></div>
+        <input type="hidden" id="driver-id" value="" />
+        <div class="form-grid">
+            <div class="form-group" style="position:relative;">
+                <label>ناوی شۆفێر</label>
+                <input type="text" id="driver-name" placeholder="ناوی شۆفێر بنووسە..." oninput="searchDriver(this.value)" autocomplete="off" />
+                <div class="suggest-box" id="driver-suggest" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label>ژمارەی مۆبایل</label>
+                <input type="text" id="driver-phone" placeholder="07XX XXX XXXX" />
+            </div>
+            <div class="form-group">
+                <label>ژمارەی ئۆتۆمبێل</label>
+                <input type="text" id="driver-car" placeholder="پلاکی ئۆتۆمبێل" />
+            </div>
+            <div class="form-group">
+                <label>لە کوێ</label>
+                <input type="text" id="route-from" placeholder="شوێنی دەرچوون" />
+            </div>
+            <div class="form-group">
+                <label>بۆ کوێ</label>
+                <input type="text" id="route-to" placeholder="شوێنی مەبەست" />
+            </div>
+            <div class="form-group">
+                <label>نرخی تکە (IQD)</label>
+                <input type="number" id="fare" placeholder="0" min="0" />
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-success" onclick="startTrip()">🚀 دەستپێکردنی گەشت</button>
+            <button class="btn btn-secondary" onclick="resetAll()">🔄 سڕینەوە</button>
+        </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="form-card" id="passenger-section" style="display:none;">
+        <h2>هەنگاوی ٢ — زیادکردنی گەشتیاران</h2>
+        <div style="margin-bottom:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span class="passenger-count-badge" id="passenger-count">کۆی گەشتیاران: 0</span>
+            <span style="color:#64748b; font-size:13px;" id="trip-info-label"></span>
+        </div>
+
+        <!-- Bus bulk -->
+        <div id="bus-bulk" style="display:none;">
+            <div class="form-group" style="margin-bottom:14px;">
+                <label>لیستی گەشتیاران — ناو - پاسپۆرت - وڵاتنامە (هەر کەسێک لە ڕیزێکدا)</label>
+                <textarea id="bulk-text" rows="12" placeholder="ئەحمەد محەمەد - A123456 - عێراق&#10;فاطمە عەلی - B789012 - ئێران&#10;..."></textarea>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="addBulkPassengers()">➕ زیادکردنی هەموو گەشتیاران</button>
+                <button class="btn btn-success" onclick="finishTrip()">✅ تەواوکردنی گەشت </button>
+            </div>
+        </div>
+
+        <!-- Single passenger -->
+        <div id="single-passenger">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+                <div class="form-group">
+<div id="scan-bar" onclick="focusPassportScanner()"
+     style="position:relative;background:rgba(201,162,39,0.05);border:2px dashed #c9a227;border-radius:12px;padding:16px;text-align:center;cursor:pointer;margin-bottom:16px;transition:all 0.3s;">
+    <div style="font-size:28px;">📷</div>
+    <div style="font-size:13px;color:#94a3b8;margin-top:4px;">کلیک بکە، پاسپۆرت بخشێنە  بە سکانەر— خۆکار پڕدەبێتەوە</div>
+    <input type="text" id="scan-bar-input"
+           style="position:absolute;opacity:0;width:1px;height:1px;top:0;left:0;pointer-events:none;"
+           oninput="handlePassportScan(this.value)"
+           autocomplete="off" />
+</div>
+
+                    <label>ناوی گەشتیار</label>
+                    <input type="text" id="pax-name" placeholder="ناوی تەواو" onkeydown="if(event.key==='Enter') addPassenger()" />
+                </div>
+                <div class="form-group">
+                    <label>ژمارەی پاسپۆرت</label>
+                    <input type="text" id="pax-passport" placeholder="پاسپۆرت یان ناسنامە" onkeydown="if(event.key==='Enter') addPassenger()" />
+                </div>
+                <div class="form-group">
+                    <label>وڵاتنامە</label>
+                    <input type="text" id="pax-nationality" placeholder="وڵات" onkeydown="if(event.key==='Enter') addPassenger()" />
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="addPassenger()">➕ زیادکردنی گەشتیار</button>
+                <button class="btn btn-success" onclick="finishTrip()">✅ تەواوکردنی گەشت</button>
+            </div>
+        </div>
+
+        <div class="passenger-list" id="passenger-list"></div>
+    </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/receipt.js"></script>
+<script src="../js/new-trip.js"></script>
+</body>
+</html>
