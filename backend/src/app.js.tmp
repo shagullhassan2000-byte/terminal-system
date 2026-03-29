@@ -1,5 +1,0 @@
-// ensure dirs
-const logsDir = path.join(__dirname, '../logs');
-const backupsDir = path.join(__dirname, '../database/backups');
-if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
-if (!fs.existsSync(backupsDir)) fs.mkdirSync(backupsDir, { recursive: true });
